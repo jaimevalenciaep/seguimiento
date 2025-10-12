@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Halterofilia · 12 semanas · 3 días · Lyudmil G.G.</title>
+  <style>
+    :root{
+      --bg:#0f172a;          /* slate-900 */
+      --card:#111827;        /* gray-900 */
+      --muted:#94a3b8;       /* slate-400 */
+      --text:#e5e7eb;        /* gray-200 */
+      --acc:#22c55e;         /* green-500 */
+      --acc-2:#38bdf8;       /* sky-400 */
+      --warn:#f59e0b;        /* amber-500 */
+      --danger:#ef4444;      /* red-500 */
+      --ok:#10b981;          /* emerald-500 */
+      --chip:#1f2937;        /* gray-800 */
+      --border:#1f2937;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; background:var(--bg); color:var(--text);}    
+    header{position:sticky; top:0; z-index:50; backdrop-filter: blur(8px); background: rgba(15,23,42,0.75); border-bottom:1px solid var(--border)}
+    .wrap{max-width:980px; margin:0 auto; padding: 12px 16px;}
+    h1{font-size:18px; margin:4px 0 8px;}
+    .subtitle{font-size:12px; color:var(--muted)}
+    .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    select, input[type="date"], input[type="number"], input[type="text"], textarea{
+      width:100%; background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
+    }
+    label{font-size:12px; color:var(--muted); display:block; margin-bottom:6px}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px;}
+    .grid{display:grid; gap:10px}
+    .g2{grid-template-columns: 1fr 1fr}
+    .g3{grid-template-columns: repeat(3,1fr)}
+    .chip{background:var(--chip); padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted); white-space:nowrap}
+    .btn{appearance:none; border:1px solid var(--border); background:#0b1222; color:var(--text); padding:10px 12px; border-radius:12px; font-size:14px; cursor:pointer}
+    .btn.primary{background:var(--acc); border-color:transparent; color:#052e16; font-weight:600}
+    .btn.warn{background:var(--warn); color:#111827; font-weight:600}
+    .btn.ghost{background:transparent}
+    .btn.block{width:100%}
+    .checkline{display:flex; align-items:center; gap:10px}
+    .checkline input[type="checkbox"]{width:20px; height:20px}
+    .muted{color:var(--muted)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px}
+    .sticky-actions{position:sticky; bottom:0; padding:10px 0; background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,1) 25%);}
+    details{background:#0b1222; border-radius:12px; border:1px solid var(--border); padding:10px 12px}
+    summary{cursor:pointer; color:var(--acc-2)}
+    .tag{display:inline-block; background:#0b1222; border:1px dashed var(--border); padding:6px 8px; border-radius:8px; font-size:12px; color:var(--muted)}
+    .list{display:grid; gap:8px}
+    .ex-row{display:grid; grid-template-columns: 1.2fr .6fr .6fr .6fr 1fr; gap:8px; align-items:center}
+    .ex-row .hdr{font-size:11px; color:var(--muted)}
+    .line{height:1px; background:var(--border); margin:10px 0}
+    .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:#0b1222; border:1px solid var(--border); padding:10px 14px; border-radius:10px; font-size:13px; display:none}
+    footer{color:var(--muted); font-size:12px; text-align:center; padding:30px 12px}
+    .pill{border:1px solid var(--border); padding:6px 10px; border-radius:999px;}
+    .ok{color:var(--ok)}
+    .danger{color:var(--danger)}
+    .warnc{color:var(--warn)}
+    
+    @media (min-width:720px){
+      .ex-row{grid-template-columns: 1.5fr .6fr .6fr .6fr 1.2fr}
+    }
+  
+    footer a{color:var(--acc-2); text-decoration:none}
+    footer a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="row" style="justify-content:space-between; align-items:flex-end">
+        <div>
+          <h1>Programación Halterofilia · 12 semanas Lyudmil G.G.</h1>
+          <div class="subtitle">3 sesiones/semana · 90' · Inicio configurable (por defecto: mañana)</div>
+        </div>
+        <div class="row">
+          <button class="btn" onclick="nav('plan')">Plan</button>
+          <button class="btn" onclick="nav('registro')">Registro</button>
+          <button class="btn" onclick="nav('ajustes')">Ajustes</button>
+          <button class="btn" onclick="nav('ayuda')">Ayuda</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" id="view-plan">
+    <div class="card" style="margin-top:12px">
+      <div class="grid g3">
+        <div>
+          <label>Semana</label>
+          <select id="sel-week"></select>
+        </div>
+        <div>
+          <label>Sesión</label>
+          <select id="sel-day">
+            <option value="1">Día 1 (Snatch)</option>
+            <option value="2">Día 2 (Clean & Jerk)</option>
+            <option value="3">Día 3 (Potencia)</option>
+          </select>
+        </div>
+        <div>
+          <label>Fecha sugerida</label>
+          <input type="date" id="date-suggest" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px; gap:6px">
+        <span class="chip" id="phase-chip">Fase</span>
+        <span class="chip" id="goal-chip">Objetivo</span>
+        <span class="chip" id="vol-chip">Volumen</span>
+        <span class="chip" id="int-chip">Intensidad</span>
+      </div>
+
+      <div class="line"></div>
+      <div id="session-container"></div>
+
+      <div class="sticky-actions">
+        <div class="card">
+          <div class="checkline">
+            <input type="checkbox" id="done-check" />
+            <label for="done-check">Marcar sesión como <b>realizada</b></label>
+          </div>
+          <div style="height:8px"></div>
+          <button class="btn primary block" onclick="saveSession()">💾 Guardar notas y marcas</button>
+	  	<!-- debajo del botón existente -->
+		<button class="btn" style="width:100%; margin-top:8px" onclick="syncToSheets()">⬆️ Enviar a Sheets</button>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <main class="wrap" id="view-registro" style="display:none">
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <div>
+          <h2 style="margin:0 0 8px">Registro</h2>
+          <div class="subtitle">Filtra y exporta tus datos. Los datos se guardan localmente en tu dispositivo.</div>
+        </div>
+        <div class="row">
+          <button class="btn" onclick="exportCSV()">⬇️ Exportar CSV</button>
+          <button class="btn" onclick="mailtoCSV()">✉️ Preparar email</button>
+          <button class="btn warn" onclick="if(confirm('Esto borrará TODO tu registro. ¿Seguro?')){localStorage.removeItem('haltero_logs'); localStorage.removeItem('haltero_done'); toast('Registro borrado.'); renderRegistro();}">🗑️ Borrar</button>
+        </div>
+      </div>
+      <div style="height:8px"></div>
+      <div id="registro-list"></div>
+    </div>
+  </main>
+
+  <main class="wrap" id="view-ajustes" style="display:none">
+    <div class="card" style="margin-top:12px">
+      <h2 style="margin:0 0 8px">Ajustes y 1RM</h2>
+      <div class="subtitle">Actualiza tus marcas, fecha de inicio y preferencias. Se guardan en este dispositivo.</div>
+      <div class="grid g2" style="margin-top:10px">
+        <div>
+          <label>Fecha de inicio</label>
+          <input type="date" id="start-date" />
+        </div>
+        <div>
+          <label>Envío por email (destinatario)</label>
+          <input type="text" id="email-dest" placeholder="tuequipo@ejemplo.com" />
+        </div>
+      </div>
+      <div class="grid g3" style="margin-top:10px">
+        <div>
+          <label>Snatch 1RM (kg)</label>
+          <input type="number" id="rm-sn" min="20" step="2.5" />
+        </div>
+        <div>
+          <label>Clean 1RM (kg)</label>
+          <input type="number" id="rm-cl" min="30" step="2.5" />
+        </div>
+        <div>
+          <label>Clean & Jerk 1RM (kg)</label>
+          <input type="number" id="rm-cj" min="30" step="2.5" />
+        </div>
+        <div>
+          <label>Front Squat 1RM (kg)</label>
+          <input type="number" id="rm-fs" min="30" step="2.5" />
+        </div>
+        <div>
+          <label>Back Squat 1RM (kg)</label>
+          <input type="number" id="rm-bs" min="40" step="2.5" />
+        </div>
+        <div>
+          <label>Push Press 1RM (kg)</label>
+          <input type="number" id="rm-pp" min="30" step="2.5" />
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:10px">
+        <div>
+          <label>Dolor cadera izq. (0–10)</label>
+          <input type="number" id="hip-pain" min="0" max="10" step="1" />
+        </div>
+        <div>
+          <label>DOMS cuádriceps dcho. (0–10)</label>
+          <input type="number" id="quad-doms" min="0" max="10" step="1" />
+        </div>
+      </div>
+      <div class="line"></div>
+      <button class="btn primary" onclick="saveSettings()">Guardar ajustes</button>
+    </div>
+  </main>
+
+  <main class="wrap" id="view-ayuda" style="display:none">
+    <div class="card" style="margin-top:12px">
+      <h2 style="margin:0 0 8px">Cómo usar el plan</h2>
+      <div class=\"list\">
+        <div class=\"tag\">90' por sesión ≈ 20' calentamiento · 55' halterofilia · 15' accesorios</div>
+        <div class=\"tag\">Fases: Sem 1–4 Técnica/Volumen · 5–8 Fuerza-Velocidad · 9–11 Intensificación · <b>12 Toma de marcas</b></div>
+        <div class=\"tag\">Redondeo automático al múltiplo de 2,5 kg (discos mínimos)</div>
+        <div class=\"tag\">RIR objetivo: técnica limpia (no forzar). En sentadillas/pulls se indica RIR 0–3</div>
+        <div class=\"tag\">Molestia de cadera: prioriza ROM tolerado, cuñas bajo talón si te ayuda; si dolor agudo → parar</div>
+      </div>
+      <div class=\"line\"></div>
+      <details><summary>¿Qué es RIR?</summary><p>RIR = «repeticiones en recámara». RIR 2 significa que podrías hacer 2 repeticiones más con buena técnica. En halterofilia, usa RIR técnico (rep limpia, sin perder posiciones).</p></details>
+      <details><summary>¿Cómo se envían los datos a Excel?</summary><p>Este archivo crea un <b>CSV</b> descargable con tus registros. Puedes adjuntarlo en un email y abrirlo en Excel/Sheets. Opcionalmente, pulsa «Preparar email» para abrir tu cliente de correo con el CSV en el cuerpo (limitado por el tamaño del correo). Para envío automático haría falta un pequeño servicio (p. ej., Google Apps Script) — ver sugerencias al final.</p></details>
+      <details><summary>¿Cómo planteo los intentos en la semana 12?</summary><p>Usa como base tus 1RM en Ajustes. Sugerencias automáticas: <b>Opener ~90%</b> (seguro), <b>2º ~96%</b>, <b>3º 100–101%</b>. Si el 1º es duro, repítelo o baja 2.5–5 kg. Descansa 3–5’ entre intentos. Escribe <b>OK/Fallo</b> en notas.</p></details>
+      <details><summary>Red flags</summary><ul>
+        <li>Dolor agudo en cadera/ingle o pinchazo que no mejora con un ajuste de ROM → <b>parar</b>, movilidad suave, consultar.</li>
+        <li>Entumecimiento/hormigueo → parar y revisar técnica.</li>
+        <li>Mareo intenso post-series → alarga descansos (≥2–3'), hidrátate, baja 5–10% la carga.</li>
+      </ul></details>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <div>© Creado por Jaime Valencia Pinar · <a href="https://www.instagram.com/jaimevalenciaep/" target="_blank" rel="noopener noreferrer">@JaimeValenciaEP</a></div>
+  </footer>
+
+<!-- justo antes de </body> -->
+<form id="sheetForm" method="POST" action="https://script.google.com/macros/s/AKfycbxYawWA4gpKoLgC2QVHtQnNcTXtEVEThZN2l9oR3pWC_n3X6KgMMkYw8x7smne3HjZI8Q/exec" target="hidden_iframe">
+  <input type="hidden" name="payload" id="payload">
+</form>
+<iframe name="hidden_iframe" style="display:none"></iframe>
+
+<script>
+(function(){
+  /* ===================== UTILIDADES ===================== */
+  const step = 2.5;
+  const roundTo = (x, s=step)=> Math.round(x/s)*s;
+  const clamp = (v, min, max)=> Math.max(min, Math.min(max, v));
+  const fmt = (n)=> (Math.round(n*10)/10).toString().replace('.', ',');
+  const todayISO = ()=> new Date().toISOString().slice(0,10);
+  const addDays = (d, n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return x;}
+  const toISO = (d)=> d.toISOString().slice(0,10);
+
+  const defaults = {
+    startDate: (function(){ const t=new Date(); t.setDate(t.getDate()+1); return toISO(t) })(),
+    email: "",
+    rms: { sn:70, cl:90, cj:85, fs:95, bs:120, pp:70 }, // (supuesto) según info
+    hipPain: 2, quadDoms: 2
+  };
+
+  function loadSettings(){
+    const s = JSON.parse(localStorage.getItem('haltero_settings')||'null');
+    return s? s: defaults;
+  }
+  function saveSettingsToLS(s){ localStorage.setItem('haltero_settings', JSON.stringify(s)); }
+
+  const settings = loadSettings();
+
+  /* ===================== FASES Y METAS ===================== */
+  function phaseOfWeek(w){
+    if(w<=4) return {name:'Técnica/Volumen', goal:'Pulir posiciones y consistencia', vol:'Medio–Alto', int:'60–75% (RIR técnico 2–3)'};
+    if(w<=8) return {name:'Fuerza-Velocidad', goal:'Transferir fuerza a velocidad', vol:'Medio', int:'70–85% (RIR técnico 1–2)'};
+    if(w<=11) return {name:'Intensificación', goal:'Singles limpios cercanos al 90–95%', vol:'Bajo–Medio', int:'80–92.5% (RIR técnico 0–1)'};
+    return {name:'Taper/Test', goal:'Afinar y testear', vol:'Bajo', int:'80–90% (sensaciones)'};
+  }
+
+  /* ===================== PRESCRIPCIONES ===================== */
+  // Mapas de % por semana
+  function snatchMain(w){
+    if(w<=1) return {name:'Snatch completo', sets:5, reps:'3', pct:65, rir:'2–3'};
+    if(w==2) return {name:'Snatch completo', sets:6, reps:'2', pct:70, rir:'2'};
+    if(w==3) return {name:'Snatch completo', sets:5, reps:'2', pct:72.5, rir:'1–2'};
+    if(w==4) return {name:'Snatch desde bloques (rodilla)', sets:5, reps:'2', pct:75, rir:'2'};
+    if(w==5) return {name:'Snatch completo', sets:6, reps:'2', pct:77.5, rir:'1–2'};
+    if(w==6) return {name:'Snatch completo', sets:6, reps:'2', pct:80, rir:'1–2'};
+    if(w==7) return {name:'Snatch con pausa (1s en rodilla)', sets:5, reps:'2', pct:82.5, rir:'1'};
+    if(w==8) return {name:'Snatch 1+1 (1 pausa + 1 completo)', sets:5, reps:'1+1', pct:80, rir:'1'};
+    if(w==9) return {name:'Snatch – singles limpios', sets:6, reps:'1', pct:85, rir:'1'};
+    if(w==10) return {name:'Snatch – singles', sets:4, reps:'1', pct:87.5, rir:'0–1'};
+    if(w==11) return {name:'Snatch – singles', sets:5, reps:'1', pct:90, rir:'0–1 (solo si limpio)'};
+    return {name:'Snatch – activación', sets:3, reps:'1', pct:80, rir:'2'};
+  }
+  function cjMain(w){
+    if(w<=1) return {name:'Clean & Jerk 1+1', sets:5, reps:'1+1', pct:70, rir:'2'};
+    if(w==2) return {name:'Clean & Jerk 1+1', sets:5, reps:'1+1', pct:72.5, rir:'2'};
+    if(w==3) return {name:'Clean & Jerk 1+1', sets:6, reps:'1+1', pct:75, rir:'1–2'};
+    if(w==4) return {name:'Clean & Jerk 1+1 desde bloques', sets:4, reps:'1+1', pct:75, rir:'2'};
+    if(w==5) return {name:'Clean & Jerk – dobles', sets:5, reps:'2', pct:80, rir:'1–2'};
+    if(w==6) return {name:'Clean & Jerk – 1+1', sets:5, reps:'1+1', pct:82.5, rir:'1–2'};
+    if(w==7) return {name:'Clean & Jerk – singles', sets:6, reps:'1', pct:85, rir:'1'};
+    if(w==8) return {name:'Clean & Jerk – singles', sets:4, reps:'1', pct:87.5, rir:'0–1'};
+    if(w==9) return {name:'Clean & Jerk – singles', sets:5, reps:'1', pct:90, rir:'0–1'};
+    if(w==10) return {name:'Clean & Jerk – singles', sets:4, reps:'1', pct:92.5, rir:'0'};
+    if(w==11) return {name:'Clean & Jerk – singles cuidando técnica', sets:3, reps:'1', pct:95, rir:'0 (solo si sólido)'};
+    return {name:'Clean & Jerk – activación', sets:2, reps:'1', pct:85, rir:'2'};
+  }
+  function fsPrescription(w){
+    if(w<=1) return {name:'Front Squat', sets:4, reps:'3', pct:70, rir:'2'};
+    if(w==2) return {name:'Front Squat', sets:5, reps:'3', pct:72.5, rir:'2'};
+    if(w==3) return {name:'Front Squat', sets:5, reps:'3', pct:75, rir:'1–2'};
+    if(w==4) return {name:'Front Squat', sets:4, reps:'2', pct:70, rir:'2–3'};
+    if(w==5) return {name:'Front Squat', sets:5, reps:'3', pct:77.5, rir:'1–2'};
+    if(w==6) return {name:'Front Squat', sets:5, reps:'3', pct:80, rir:'1–2'};
+    if(w==7) return {name:'Front Squat', sets:4, reps:'2', pct:82.5, rir:'1'};
+    if(w==8) return {name:'Front Squat', sets:4, reps:'2', pct:85, rir:'1'};
+    if(w==9) return {name:'Front Squat', sets:5, reps:'2', pct:87.5, rir:'0–1'};
+    if(w==10) return {name:'Front Squat', sets:4, reps:'1–2', pct:90, rir:'0–1'};
+    if(w==11) return {name:'Front Squat', sets:3, reps:'1', pct:92.5, rir:'0'};
+    return {name:'Front Squat', sets:3, reps:'2', pct:80, rir:'2'};
+  }
+  function bsPrescription(w){
+    if(w<=1) return {name:'Back Squat', sets:5, reps:'5', pct:70, rir:'2–3'};
+    if(w==2) return {name:'Back Squat', sets:5, reps:'4', pct:72.5, rir:'2'};
+    if(w==3) return {name:'Back Squat', sets:5, reps:'3', pct:75, rir:'2'};
+    if(w==4) return {name:'Back Squat', sets:4, reps:'3', pct:70, rir:'3'};
+    if(w==5) return {name:'Back Squat', sets:5, reps:'3', pct:77.5, rir:'2'};
+    if(w==6) return {name:'Back Squat', sets:5, reps:'3', pct:80, rir:'1–2'};
+    if(w==7) return {name:'Back Squat', sets:4, reps:'2', pct:82.5, rir:'1–2'};
+    if(w==8) return {name:'Back Squat', sets:4, reps:'2', pct:85, rir:'1'};
+    if(w==9) return {name:'Back Squat', sets:5, reps:'2', pct:87.5, rir:'0–1'};
+    if(w==10) return {name:'Back Squat', sets:4, reps:'1–2', pct:90, rir:'0–1'};
+    if(w==11) return {name:'Back Squat', sets:3, reps:'1', pct:92.5, rir:'0'};
+    return {name:'Back Squat', sets:3, reps:'2', pct:80, rir:'2'};
+  }
+  function snPull(w){
+    const pct = w<=4? 90 : w<=8? 95 : w<=11? 100 : 90;
+    return {name:'Snatch Pull (tirón)', sets:3, reps:'3', pct, rir:'2'};
+  }
+  function clPull(w){
+    const pct = w<=4? 100 : w<=8? 105 : w<=11? 110 : 95;
+    return {name:'Clean Pull (tirón)', sets:3, reps:'3', pct, rir:'2'};
+  }
+
+  /* ===================== GENERAR SESIONES ===================== */
+  function suggestedDates(startISO){
+    // Sugerimos Lunes-Miércoles-Sábado por defecto
+    const d0 = new Date(startISO);
+    // Asegurar que d0 sea lunes
+    const day = d0.getDay(); // 0 dom, 1 lun
+    const shift = (day<=1)? (1-day) : (8-day);
+    d0.setDate(d0.getDate()+shift);
+    const dates=[];
+    for(let w=0; w<12; w++){
+      const base = addDays(d0, w*7);
+      dates.push([
+        toISO(addDays(base,0)), // Lunes
+        toISO(addDays(base,2)), // Miércoles
+        toISO(addDays(base,5))  // Sábado
+      ]);
+    }
+    return dates; // [ [w1d1, w1d2, w1d3], [w2d1,...], ... ]
+  }
+
+  function buildSession(w, d){
+    const phase = phaseOfWeek(w);
+    const s = [];
+    // ------- Calentamiento (20') -------
+    const hipFlag = settings.hipPain>=4 ? '⚠️' : '';
+    s.push({type:'warm', title:`Calentamiento – 20'`, items:[
+      '2’ bici/remo + respiración 360° (costillas abajo)',
+      `Movilidad cadera: 90/90 + CARs (2×6/lado) ${hipFlag}`,
+      'Tobillo: dorsiflexión en pared 2×10/lado',
+      'Torácica: rotaciones en cuadrupedia 2×8/lado',
+      'Activación glúteo medio: miniband lateral + monster walk 2×12/12',
+      'Core anti-extensión: dead bug 2×8/8 (exhala y bloquea)',
+      'Barra vacía (5’): high pull, muscle snatch/clean, press en split (técnica)'
+    ]});
+
+    // ====== Semana 12: Toma de marcas ======
+    if(w===12){
+      if(d===1){
+        const base = settings.rms.sn || 70;
+        const a1 = roundTo(base*0.90), a2 = roundTo(base*0.96), a3 = roundTo(base*1.01);
+        s.push({type:'warm', title:'Progresión previa', items:[
+          '40%×3 · 60%×2 · 70%×1 · 80%×1 · 85%×1 (descansos 2–3’)'
+        ]});
+        s.push({type:'lift', title:'Toma de marcas – Snatch', items:[
+          {ex:'Intento 1 (opener)', presc:`1×1 (sugerido ${fmt(a1)} kg)`, rir:'—', rest:'180–240"', key:'TEST_SN_A1', pct: Math.round((a1/base)*100), ref:'sn'},
+          {ex:'Intento 2', presc:`1×1 (sugerido ${fmt(a2)} kg)`, rir:'—', rest:'180–240"', key:'TEST_SN_A2', pct: Math.round((a2/base)*100), ref:'sn'},
+          {ex:'Intento 3', presc:`1×1 (sugerido ${fmt(a3)} kg)`, rir:'—', rest:'240–300"', key:'TEST_SN_A3', pct: Math.round((a3/base)*100), ref:'sn'}
+        ]});
+        s.push({type:'warm', title:'Notas', items:[
+          'Escribe OK/Fallo en «RIR/Notas». Si fallas el 1º, repite o baja 2.5–5 kg.',
+          'Respeta descansos largos. Técnica por encima del ego.'
+        ]});
+        s.push({type:'access', title:'Accesorios ligeros – 10–15’', items:[
+          'Movilidad suave (cadera/torácica) · respiración · paseo 5–10’'
+        ]});
+        return {phase, blocks:s};
+      }
+      if(d===2){
+        const base = settings.rms.cj || 85;
+        const a1 = roundTo(base*0.90), a2 = roundTo(base*0.96), a3 = roundTo(base*1.01);
+        s.push({type:'warm', title:'Progresión previa', items:[
+          'Clean & Jerk: 50%×2 · 65%×1+1 · 75%×1+1 · 85%×1 (descansos 2–3’)'
+        ]});
+        s.push({type:'lift', title:'Toma de marcas – Clean & Jerk', items:[
+          {ex:'Intento 1 (opener)', presc:`1×1 (sugerido ${fmt(a1)} kg)`, rir:'—', rest:'180–240"', key:'TEST_CJ_A1', pct: Math.round((a1/base)*100), ref:'cj'},
+          {ex:'Intento 2', presc:`1×1 (sugerido ${fmt(a2)} kg)`, rir:'—', rest:'180–240"', key:'TEST_CJ_A2', pct: Math.round((a2/base)*100), ref:'cj'},
+          {ex:'Intento 3', presc:`1×1 (sugerido ${fmt(a3)} kg)`, rir:'—', rest:'240–300"', key:'TEST_CJ_A3', pct: Math.round((a3/base)*100), ref:'cj'}
+        ]});
+        s.push({type:'warm', title:'Notas', items:[
+          'En «RIR/Notas» anota OK/Fallo y sensaciones del jerk.',
+          'Si el clean sacude cadera/ingle → baja 2.5–5 kg o termina.'
+        ]});
+        s.push({type:'access', title:'Accesorios ligeros – 10–15’', items:[
+          'Respiración + movilidad + paseo 5–10’'
+        ]});
+        return {phase, blocks:s};
+      }
+      if(d===3){
+        const baseFS = settings.rms.fs || 95;
+        s.push({type:'warm', title:'Recuperación activa', items:[
+          'Ciclo suave 5–8’, movilidad cadera/torácica, activación glúteo medio'
+        ]});
+        s.push({type:'lift', title:'Opcional – Front Squat referencia', items:[
+          {ex:'FS single de referencia', presc:`Sube a 1×1 @ ~${Math.round(100*(0.9))}% (sug. ${fmt(roundTo(baseFS*0.9))} kg)`, rir:'deja 1–2 reps en recámara', rest:'150–180"', key:'TEST_FS_REF', pct:90, ref:'fs'}
+        ]});
+        s.push({type:'access', title:'Descarga', items:[
+          'RDL ligero 2×8 · Face pull 2×15 · respiración 5’'
+        ]});
+        return {phase, blocks:s};
+      }
+    }
+
+    // ------- Parte principal (55') -------
+    if(d==1){
+      // Día 1 – Snatch
+      s.push({type:'lift', title:'Técnica', items:[{ex:'Snatch balance (ligero)', presc:'3×3 @ 40–50% snatch', rir:'técnico 3', rest:'60–90"'}]});
+      const main = snatchMain(w);
+      s.push({type:'lift', title:'Principal', items:[{ex:main.name, presc:`${main.sets}×${main.reps} @ ${main.pct}% snatch`, rir:main.rir, rest:'90–150"', key:'SNATCH_MAIN', pct:main.pct, ref:'sn'}]});
+      const pull = snPull(w);
+      s.push({type:'lift', title:'Fuerza específica', items:[{ex:pull.name, presc:`${pull.sets}×${pull.reps} @ ${pull.pct}% snatch`, rir:pull.rir, rest:'90–120"', key:'SN_PULL', pct:pull.pct, ref:'sn'}]});
+      const fs = fsPrescription(w);
+      s.push({type:'lift', title:'Sentadilla frontal', items:[{ex:fs.name, presc:`${fs.sets}×${fs.reps} @ ${fs.pct}% FS`, rir:fs.rir, rest:'120–180"', key:'FS', pct:fs.pct, ref:'fs'}]});
+    }
+    if(d==2){
+      // Día 2 – C&J + Back Squat
+      s.push({type:'lift', title:'Técnica jerk', items:[{ex:'Press en split o jerk balance', presc:'3×3 @ muy ligero', rir:'técnico 3', rest:'60–90"'}]});
+      const main = cjMain(w);
+      s.push({type:'lift', title:'Principal', items:[{ex:main.name, presc:`${main.sets}×${main.reps} @ ${main.pct}% C&J`, rir:main.rir, rest:'120–180"', key:'CJ_MAIN', pct:main.pct, ref:'cj'}]});
+      const pull = clPull(w);
+      s.push({type:'lift', title:'Fuerza específica', items:[{ex:pull.name, presc:`${pull.sets}×${pull.reps} @ ${pull.pct}% clean`, rir:pull.rir, rest:'90–120"', key:'CL_PULL', pct:pull.pct, ref:'cl'}]});
+      const bs = bsPrescription(w);
+      s.push({type:'lift', title:'Sentadilla trasera', items:[{ex:bs.name, presc:`${bs.sets}×${bs.reps} @ ${bs.pct}% BS`, rir:bs.rir, rest:'150–240"', key:'BS', pct:bs.pct, ref:'bs'}]});
+      // Final jerk/push
+      s.push({type:'lift', title:'Empuje', items:[{ex:'Push press', presc:'4×3 @ 70–80% PP', rir:'1–2', rest:'120"', key:'PP', pct: (w<=4? 70 : w<=8? 75 : w<=11? 80 : 70), ref:'pp'}]});
+    }
+    if(d==3){
+      // Día 3 – Potencia + FS/Paused + accesorios
+      s.push({type:'lift', title:'Potencia', items:[{ex: w<=6? 'Power snatch desde hang' : 'Snatch desde hang (por debajo rodilla)', presc: (w<=4? '6×2 @ 60–65%' : w<=8? '5×2 @ 70–75%' : w<=11? '5×1–2 @ 75–80%' : '3×1 @ 70–75%'), rir:'técnico 2', rest:'90–120"', key:'SN_POWER', pct:(w<=4? 62.5 : w<=8? 72.5 : w<=11? 77.5 : 72.5), ref:'sn'}]});
+      s.push({type:'lift', title:'Potencia clean/jerk', items:[{ex: w<=6? 'Power clean + jerk' : 'Clean 1+ Power jerk', presc: (w<=4? '5×2 @ 70%' : w<=8? '5×1+1 @ 75–80%' : w<=11? '4×1 @ 80–85%' : '2×1 @ 75–80%'), rir:'técnico 2', rest:'120–150"', key:'CL_POWER', pct:(w<=4? 70 : w<=8? 77.5 : w<=11? 82.5 : 77.5), ref:'cj'}]});
+      s.push({type:'lift', title:'Front squat (pausa 2s abajo)', items:[{ex:'Front squat (pausa)', presc: (w<=4? '4×3 @ 65–70%' : w<=8? '4×2–3 @ 72.5–80%' : w<=11? '4×2 @ 82.5–85%' : '3×2 @ 75–80%'), rir:'1–2', rest:'150"', key:'FS_PAUSE', pct:(w<=4? 67.5 : w<=8? 77.5 : w<=11? 85 : 77.5), ref:'fs'}]});
+    }
+
+    // ------- Accesorios (15') -------
+    const acc = [];
+    if(d==1){
+      acc.push('Hip airplanes 2×6/6');
+      acc.push('Pallof press 3×10/10');
+      acc.push('Copenhagen plank 3×20–30"/lado');
+    } else if(d==2){
+      acc.push('Split squat isométrico 3×20–30"/lado');
+      acc.push('Row con mancuerna 3×10/10');
+      acc.push('Plancha lateral 3×30"/lado');
+    } else {
+      acc.push('RDL con barra ligera 3×8 (tempo 3–0–3)');
+      acc.push('Face pulls/bandas 3×15');
+      acc.push('Respiración espaciada + movilidad 5’');
+    }
+    s.push({type:'access', title:'Accesorios – 15’ (RIR 2–3)', items: acc});
+
+    return {phase, blocks:s};
+  }
+
+  /* ===================== UI DE SESIÓN ===================== */
+  function renderSession(){
+    const w = parseInt(document.getElementById('sel-week').value,10);
+    const d = parseInt(document.getElementById('sel-day').value,10);
+
+    const {phase, blocks} = buildSession(w,d);
+    document.getElementById('phase-chip').innerText = phase.name;
+    document.getElementById('goal-chip').innerText = phase.goal;
+    document.getElementById('vol-chip').innerText = 'Vol: '+phase.vol;
+    document.getElementById('int-chip').innerText = 'Int: '+phase.int;
+
+    // fecha sugerida
+    const dates = suggestedDates(settings.startDate);
+    document.getElementById('date-suggest').value = dates[w-1][d-1];
+
+    // construir HTML
+    const sc = document.getElementById('session-container');
+    sc.innerHTML = '';
+
+    // Nota de seguridad cadera
+    if(settings.hipPain>=4){
+      const warn = document.createElement('div');
+      warn.className='card';
+      warn.style.border = '1px solid var(--warn)';
+      warn.innerHTML = '<b>Atención cadera:</b> usa cuñas bajo talón, ROM tolerado y pausa si hay pinchazo. Si el dolor no cede → para.';
+      sc.appendChild(warn);
+    }
+
+    blocks.forEach(block=>{
+      const card = document.createElement('div');
+      card.className='card';
+      card.style.marginBottom='10px';
+      const title = document.createElement('h3');
+      title.style.margin='0 0 10px'; title.textContent = block.title;
+      card.appendChild(title);
+
+      if(block.type==='warm' || block.type==='access'){
+        const ul = document.createElement('ul');
+        ul.className='list';
+        block.items.forEach(it=>{
+          const li = document.createElement('li');
+          li.textContent = '· '+it;
+          ul.appendChild(li);
+        });
+        card.appendChild(ul);
+      }
+
+      if(block.type==='lift'){
+        // cabecera de fila
+        const hdr = document.createElement('div');
+        hdr.className='ex-row';
+        hdr.innerHTML = '<div class="hdr">Ejercicio · Prescripción</div><div class="hdr">% ref</div><div class="hdr">Kg obj</div><div class="hdr">Peso usado</div><div class="hdr">RIR/Notas</div>';
+        card.appendChild(hdr);
+
+        block.items.forEach((it, idx)=>{
+          const row = document.createElement('div'); row.className='ex-row';
+          const refRM = it.ref? settings.rms[it.ref] : null;
+          const pct = it.pct || null;
+          const kg = (refRM && pct)? roundTo(refRM * pct / 100.0) : null;
+          const exKey = sessionKey() + '_' + (it.key || (block.title+'_'+idx)).replace(/\s+/g,'');
+
+          row.innerHTML = `
+            <div><div><b>${it.ex}</b></div><div class="muted mono">${it.presc} · RIR ${it.rir} · Descanso ${it.rest||''}</div></div>
+            <div>${pct? pct+'%':''}</div>
+            <div>${kg? fmt(kg):'-'}</div>
+            <div><input type="number" inputmode="decimal" step="0.5" placeholder="kg" id="${exKey}_kg"/></div>
+            <div><input type="text" placeholder="RIR real / sensaciones" id="${exKey}_notes"/></div>
+          `;
+
+          // Rellenar si existe log
+          const logs = loadLogs();
+          const prev = logs[exKey];
+          if(prev){
+            setTimeout(()=>{
+              const kgI=document.getElementById(`${exKey}_kg`);
+              const ntI=document.getElementById(`${exKey}_notes`);
+              if(kgI) kgI.value = prev.kg;
+              if(ntI) ntI.value = prev.notes;
+            },0);
+          }
+
+          card.appendChild(row);
+        });
+      }
+
+      sc.appendChild(card);
+    });
+
+    // Marcar realizado si existe
+    const done = loadDone();
+    document.getElementById('done-check').checked = !!done[sessionKey()];
+  }
+
+  function sessionKey(){
+    const w = document.getElementById('sel-week').value;
+    const d = document.getElementById('sel-day').value;
+    return `W${w}D${d}`;
+  }
+
+  function saveSession(){
+    const container = document.getElementById('session-container');
+    const inputs = container.querySelectorAll('input');
+    const logs = loadLogs();
+    inputs.forEach(inp=>{
+      const id = inp.id;
+      if(!id) return;
+      if(id.endsWith('_kg') || id.endsWith('_notes')){
+        const base = id.replace(/_(kg|notes)$/,'');
+        logs[base] = logs[base] || {kg:'', notes:''};
+        if(id.endsWith('_kg')) logs[base].kg = inp.value;
+        else logs[base].notes = inp.value;
+      }
+    });
+    localStorage.setItem('haltero_logs', JSON.stringify(logs));
+
+    const done = loadDone();
+    done[sessionKey()] = document.getElementById('done-check').checked;
+    localStorage.setItem('haltero_done', JSON.stringify(done));
+
+    toast('Sesión guardada ✅');
+    renderRegistro();
+  }
+
+  function loadLogs(){ return JSON.parse(localStorage.getItem('haltero_logs')||'{}'); }
+  function loadDone(){ return JSON.parse(localStorage.getItem('haltero_done')||'{}'); }
+
+  /* ===================== REGISTRO ===================== */
+  function renderRegistro(){
+    const wrap = document.getElementById('registro-list');
+    wrap.innerHTML = '';
+    const logs = loadLogs();
+    const entries = [];
+    Object.keys(logs).forEach(k=>{
+      const m = k.match(/^W(\d+)D(\d+)_/);
+      if(!m) return; const w=parseInt(m[1]), d=parseInt(m[2]);
+      const ex = k.split('_').slice(1).join('_');
+      const dates = suggestedDates(settings.startDate);
+      const dateISO = dates[w-1][d-1];
+      const {kg, notes} = logs[k];
+      entries.push({week:w, day:d, ex, kg, notes, date:dateISO});
+    });
+    entries.sort((a,b)=> (a.week-b.week) || (a.day-b.day) || a.ex.localeCompare(b.ex));
+
+    if(entries.length===0){
+      const p=document.createElement('p');
+      p.className='muted'; p.textContent='Aún no hay registros. Anota pesos en el Plan y pulsa «Guardar».';
+      wrap.appendChild(p); return;
+    }
+
+    // pintar tarjetas por semana
+    let currW = 0;
+    entries.forEach(e=>{
+      if(e.week!==currW){
+        currW = e.week;
+        const h = document.createElement('h3'); h.textContent = `Semana ${currW}`; h.style.margin='16px 0 8px';
+        wrap.appendChild(h);
+      }
+      const card = document.createElement('div'); card.className='card'; card.style.marginBottom='8px';
+      card.innerHTML = `
+        <div class="row" style="justify-content:space-between">
+          <div><b>D${e.day}</b> · ${e.date}</div>
+          <div class="muted">${loadDone()[`W${e.week}D${e.day}`]? '<span class="ok">REALIZADA</span>':'Pendiente'}</div>
+        </div>
+        <div class="mono" style="margin-top:6px">${e.ex}</div>
+        <div class="row" style="gap:12px; margin-top:6px">
+          <div class="pill">Peso: <b>${e.kg||'—'}</b> kg</div>
+          <div class="pill">Notas: <b>${e.notes||'—'}</b></div>
+        </div>
+      `;
+      wrap.appendChild(card);
+    });
+  }
+
+  function exportCSV(){
+    const logs = loadLogs();
+    const dates = suggestedDates(settings.startDate);
+    const rows = [['fecha','semana','dia','ejercicio_key','peso_kg','notas']];
+    Object.keys(logs).forEach(k=>{
+      const m = k.match(/^W(\d+)D(\d+)_/);
+      if(!m) return; const w=parseInt(m[1]), d=parseInt(m[2]);
+      rows.push([dates[w-1][d-1], w, d, k, logs[k].kg||'', (logs[k].notes||'').replaceAll('\n',' ') ]);
+    });
+    const csv = rows.map(r=> r.map(x=>`"${(x+'').replaceAll('"','""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='registro_haltero.csv'; a.click();
+    URL.revokeObjectURL(url);
+    toast('CSV exportado');
+  }
+
+  function mailtoCSV(){
+    const logs = loadLogs();
+    const dates = suggestedDates(settings.startDate);
+    const rows = [['fecha','semana','dia','ejercicio_key','peso_kg','notas']];
+    Object.keys(logs).forEach(k=>{
+      const m = k.match(/^W(\d+)D(\d+)_/);
+      if(!m) return; const w=parseInt(m[1]), d=parseInt(m[2]);
+      rows.push([dates[w-1][d-1], w, d, k, logs[k].kg||'', (logs[k].notes||'').replaceAll('\n',' ') ]);
+    });
+    const csv = rows.map(r=> r.join(';')).join('\n'); // separador ; para EU/Excel
+    const dest = encodeURIComponent(settings.email||'');
+    const subject = encodeURIComponent('Registro halterofilia (CSV en cuerpo)');
+    const body = encodeURIComponent(csv.slice(0,15000)); // evitar límite mailto
+    const link = `mailto:${dest}?subject=${subject}&body=${body}`;
+    window.location.href = link;
+  }
+
+  /* ===================== NAVEGACIÓN ===================== */
+  function nav(id){
+    document.getElementById('view-plan').style.display = (id==='plan')? 'block':'none';
+    document.getElementById('view-registro').style.display = (id==='registro')? 'block':'none';
+    document.getElementById('view-ajustes').style.display = (id==='ajustes')? 'block':'none';
+    document.getElementById('view-ayuda').style.display = (id==='ayuda')? 'block':'none';
+  }
+
+  function toast(msg){
+    const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
+    setTimeout(()=> t.style.display='none', 1800);
+  }
+
+  /* ===================== AJUSTES UI ===================== */
+  function loadSettingsToUI(){
+    document.getElementById('start-date').value = settings.startDate;
+    document.getElementById('email-dest').value = settings.email || '';
+    document.getElementById('rm-sn').value = settings.rms.sn;
+    document.getElementById('rm-cl').value = settings.rms.cl;
+    document.getElementById('rm-cj').value = settings.rms.cj;
+    document.getElementById('rm-fs').value = settings.rms.fs;
+    document.getElementById('rm-bs').value = settings.rms.bs;
+    document.getElementById('rm-pp').value = settings.rms.pp;
+    document.getElementById('hip-pain').value = settings.hipPain;
+    document.getElementById('quad-doms').value = settings.quadDoms;
+  }
+
+  window.saveSettings = function(){
+    const s = {
+      startDate: document.getElementById('start-date').value || settings.startDate,
+      email: document.getElementById('email-dest').value.trim(),
+      rms: {
+        sn: Number(document.getElementById('rm-sn').value),
+        cl: Number(document.getElementById('rm-cl').value),
+        cj: Number(document.getElementById('rm-cj').value),
+        fs: Number(document.getElementById('rm-fs').value),
+        bs: Number(document.getElementById('rm-bs').value),
+        pp: Number(document.getElementById('rm-pp').value)
+      },
+      hipPain: clamp(Number(document.getElementById('hip-pain').value),0,10),
+      quadDoms: clamp(Number(document.getElementById('quad-doms').value),0,10)
+    };
+    saveSettingsToLS(s); Object.assign(settings, s);
+    toast('Ajustes guardados');
+    populateWeeks(); renderSession(); renderRegistro();
+  }
+
+  /* ===================== INICIALIZAR ===================== */
+  function populateWeeks(){
+    const wSel = document.getElementById('sel-week');
+    wSel.innerHTML='';
+    for(let i=1;i<=12;i++){
+      const opt=document.createElement('option');
+      opt.value=i; opt.textContent='Semana '+i; wSel.appendChild(opt);
+    }
+    // Por defecto: semana actual según hoy vs startDate
+    const sd = new Date(settings.startDate);
+    const now = new Date();
+    const diffDays = Math.max(0, Math.floor((now - sd)/(1000*3600*24)));
+    let currWeek = Math.floor(diffDays/7)+1; if(currWeek<1) currWeek=1; if(currWeek>12) currWeek=12;
+    wSel.value = String(currWeek);
+  }
+
+  function init(){
+    populateWeeks();
+    loadSettingsToUI();
+    document.getElementById('sel-week').addEventListener('change', renderSession);
+    document.getElementById('sel-day').addEventListener('change', renderSession);
+    document.getElementById('date-suggest').addEventListener('change', (e)=>{
+      // solo informativo
+    });
+    renderSession();
+    renderRegistro();
+  }
+
+function syncToSheets(){
+  // 1) Identificador del cliente desde la URL (ej: ?client_id=cli_123)
+  const url = new URL(location.href);
+  const client_id = url.searchParams.get('client_id') || 'DEMO-123';
+
+  // 2) Leemos tus registros y “realizado” desde localStorage (ya existen en este archivo)
+  const logs = loadLogs();   // { "W1D1_SNATCH_MAIN": {kg:'', notes:''}, ... }
+  const done = loadDone();   // { "W1D1": true/false, ... }
+
+  // 3) Calculamos la fecha de cada sesión con tus utilidades existentes
+  const dates = suggestedDates(settings.startDate); // usa startDate del apartado Ajustes
+
+  // 4) Construimos el payload (una fila por ejercicio registrado)
+  const items = [];
+  Object.keys(logs).forEach(k=>{
+    const m = k.match(/^W(\d+)D(\d+)_/);
+    if(!m) return;
+    const week = parseInt(m[1],10);
+    const day  = parseInt(m[2],10);
+    const dateISO = dates[week-1][day-1]; // yyyy-mm-dd
+    items.push({
+      client_id,
+      date: dateISO,
+      week,
+      day,
+      exercise_key: k,
+      kg: logs[k].kg || '',
+      notes: (logs[k].notes||'').replaceAll('\n',' '),
+      done: !!done[`W${week}D${day}`]
+    });
+  });
+
+  if (!items.length) { toast('No hay registros que enviar'); return; }
+
+  // 5) Enviamos al Apps Script mediante el formulario oculto (sin CORS)
+  document.getElementById('payload').value = JSON.stringify(items);
+
+  // Si añades &debug=1 a la URL, verás la respuesta JSON (quitamos el iframe)
+  if (url.searchParams.get('debug') === '1') {
+    document.getElementById('sheetForm').removeAttribute('target');
+  }
+
+  document.getElementById('sheetForm').submit();
+  toast('Enviado a Sheets ✅');
+}
+
+
+  // Exponer funciones globales
+  window.nav = nav;
+  window.saveSession = saveSession;
+  window.exportCSV = exportCSV;
+  window.mailtoCSV = mailtoCSV;
+  window.syncToSheets = syncToSheets;
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>
