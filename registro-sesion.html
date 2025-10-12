@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registro de sesión</title>
+  <style>
+    :root { --gap: 8px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
+    h2 { margin: 0 0 8px; }
+    .muted { color:#666; font-size: 0.95rem; }
+    .section { margin: 18px 0; }
+
+    .row { display: grid; grid-template-columns: 1fr repeat(4, minmax(0, 90px)); gap: var(--gap); align-items: center; }
+    .row.header { font-weight: 600; }
+
+    input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px;
+    }
+
+    .btn { width: 100%; padding: 14px; border: 0; border-radius: 12px; font-weight: 700; cursor: pointer; }
+    .btn-save { background:#222; color:#fff; }
+    .ok { color:#0a7a2d; font-weight: 600; }
+    .err { color:#a20; font-weight: 600; }
+
+    @media (max-width: 520px) {
+      .row { grid-template-columns: 1fr 80px 70px 70px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h2>Registro de sesión</h2>
+  <p class="muted">Cliente: <span id="who">—</span> · Fecha: <input id="session_date" type="date"></p>
+
+  <!-- REEMPLAZA SCRIPT_URL_AQUI con la Web App URL de tu Apps Script (termina en /exec) -->
+  <form id="form" method="POST" action="https://script.google.com/macros/s/AKfycbxYawWA4gpKoLgC2QVHtQnNcTXtEVEThZN2l9oR3pWC_n3X6KgMMkYw8x7smne3HjZI8Q/exec" target="hidden_iframe">
+    <input type="hidden" name="payload" id="payload">
+
+    <!-- FUERZA -->
+    <div class="section">
+      <h3>Fuerza</h3>
+      <div class="row header">
+        <div>Ejercicio</div><div>Series</div><div>Reps</div><div>Kg</div><div>RPE</div>
+      </div>
+
+      <!-- Duplica/edita estas filas según tu plan -->
+      <div class="row exercise" data-exercise="Sentadilla">
+        <div>Sentadilla</div>
+        <input name="series" type="number" inputmode="numeric" placeholder="S" min="0">
+        <input name="reps"   type="number" inputmode="numeric" placeholder="R" min="0">
+        <input name="kg"     type="number" inputmode="decimal" step="0.5" placeholder="Kg">
+        <input name="rpe"    type="number" inputmode="decimal" step="0.5" placeholder="RPE">
+      </div>
+
+      <div class="row exercise" data-exercise="Press banca">
+        <div>Press banca</div>
+        <input name="series" type="number" inputmode="numeric" placeholder="S" min="0">
+        <input name="reps"   type="number" inputmode="numeric" placeholder="R" min="0">
+        <input name="kg"     type="number" inputmode="decimal" step="0.5" placeholder="Kg">
+        <input name="rpe"    type="number" inputmode="decimal" step="0.5" placeholder="RPE">
+      </div>
+
+      <div class="row exercise" data-exercise="Peso muerto">
+        <div>Peso muerto</div>
+        <input name="series" type="number" inputmode="numeric" placeholder="S" min="0">
+        <input name="reps"   type="number" inputmode="numeric" placeholder="R" min="0">
+        <input name="kg"     type="number" inputmode="decimal" step="0.5" placeholder="Kg">
+        <input name="rpe"    type="number" inputmode="decimal" step="0.5" placeholder="RPE">
+      </div>
+    </div>
+
+    <!-- CARRERA -->
+    <div class="section">
+      <h3>Carrera</h3>
+      <div class="row header">
+        <div>Tipo</div><div>Dist (km)</div><div>Tiempo (min)</div><div>Ritmo</div><div>FC</div>
+      </div>
+      <div class="row run" data-type="carrera">
+        <div>Rodaje</div>
+        <input name="dist_km"     type="number" inputmode="decimal" step="0.1" placeholder="Km">
+        <input name="tiempo_min"  type="number" inputmode="decimal" step="0.1" placeholder="Min">
+        <input name="ritmo_min_km" type="text" placeholder="p. ej. 5:10">
+        <input name="fc_media"    type="number" inputmode="numeric" placeholder="FC">
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Comentarios</label>
+      <input id="comentarios" type="text" placeholder="Opcional: sensaciones, dolor, etc.">
+    </div>
+
+    <button type="button" class="btn btn-save" id="saveBtn">Guardar</button>
+  </form>
+
+  <!-- Evita que la página navegue al enviar (bypass CORS) -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+  <p id="msg" class="muted"></p>
+
+  <script>
+    // Lee parámetros de la URL, p. ej. ?client_id=cli_123&debug=1
+    function getParam(name) { return new URL(location.href).searchParams.get(name); }
+    function hoyYYYYMMDD(){ const d=new Date(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return d.getFullYear()+"-"+m+"-"+day; }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      // Modo diagnóstico: si ?debug=1, quitamos el target para ver la respuesta JSON del servidor
+      if (getParam('debug') === '1') { document.getElementById('form').removeAttribute('target'); }
+
+      const clientId = getParam('client_id') || 'DEMO-123';
+      document.getElementById('who').textContent = clientId;
+      document.getElementById('session_date').value = hoyYYYYMMDD();
+
+      document.getElementById('saveBtn').addEventListener('click', function(){
+        const client_id = clientId;
+        const session_date = document.getElementById('session_date').value;
+        const comentarios = document.getElementById('comentarios').value;
+
+        const payload = [];
+
+        // Recoge fuerza
+        document.querySelectorAll('.exercise').forEach(function(row){
+          const exercise = row.dataset.exercise || 'Ejercicio';
+          const series = row.querySelector('input[name="series"]').value;
+          const reps   = row.querySelector('input[name="reps"]').value;
+          const kg     = row.querySelector('input[name="kg"]').value;
+          const rpe    = row.querySelector('input[name="rpe"]').value;
+          if (series || reps || kg || rpe || comentarios) {
+            payload.push({ client_id, session_date, type:'fuerza', exercise, series, reps, kg, rpe, comentarios });
+          }
+        });
+
+        // Recoge carrera
+        document.querySelectorAll('.run').forEach(function(row){
+          const dist_km      = row.querySelector('input[name="dist_km"]').value;
+          const tiempo_min   = row.querySelector('input[name="tiempo_min"]').value;
+          const ritmo_min_km = row.querySelector('input[name="ritmo_min_km"]').value;
+          const fc_media     = row.querySelector('input[name="fc_media"]').value;
+          if (dist_km || tiempo_min || ritmo_min_km || fc_media || comentarios) {
+            payload.push({ client_id, session_date, type:'carrera', exercise:'', series:'', reps:'', kg:'', rpe:'', dist_km, tiempo_min, ritmo_min_km, fc_media, comentarios });
+          }
+        });
+
+        const msg = document.getElementById('msg');
+        if (!payload.length) { msg.textContent = 'No hay datos que guardar.'; msg.className = 'err'; return; }
+
+        document.getElementById('payload').value = JSON.stringify(payload);
+        document.getElementById('form').submit();
+
+        // Mensaje optimista (no podemos leer el iframe por CORS)
+        msg.textContent = 'Guardado. ¡Gracias!';
+        msg.className = 'ok';
+      });
+    });
+  </script>
+</body>
+</html>

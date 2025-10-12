@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registro de peso</title>
+<style>
+body { font-family: system-ui, Arial, sans-serif; margin: 16px; }
+input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin: 8px 0; }
+.btn { width: 100%; padding: 14px; border: 0; border-radius: 12px; font-weight: 700; background:#222; color:#fff; }
+.muted { color:#666; font-size:0.9rem; }
+.ok { color:#0a7a2d; font-weight:600; }
+.err { color:#a20; font-weight:600; }
+</style>
+</head>
+<body>
+<h2>Registro de peso</h2>
+<p class="muted">Cliente: <span id="who">—</span></p>
+
+
+<form id="form" method="POST" action="https://script.google.com/macros/s/AKfycbxb1pS4Xo4H9ju754HzjRgGGZmsevJF8cP8I7cI-kkWS38RpvKtevwpt0HPGzXo4ArD/exec" target="hidden_iframe">
+<input type="hidden" name="payload" id="payload">
+<label>Fecha</label>
+<input id="fecha" type="date">
+<label>Peso (kg)</label>
+<input id="peso" type="number" inputmode="decimal" step="0.1" placeholder="Ej.: 73.4" required>
+<label>Nota (opcional)</label>
+<input id="nota" type="text" placeholder="Cómo te has sentido, etc.">
+<button type="button" class="btn" id="save">Guardar</button>
+</form>
+
+
+<iframe name="hidden_iframe" style="display:none;"></iframe>
+<p id="msg" class="muted"></p>
+
+
+<script>
+function getParam(n){ return new URL(location.href).searchParams.get(n); }
+function hoy(){ const d=new Date(); return d.toISOString().slice(0,10); }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+const client_id = getParam('client_id') || 'DEMO-123';
+document.getElementById('who').textContent = client_id;
+document.getElementById('fecha').value = hoy();
+
+
+document.getElementById('save').addEventListener('click', () => {
+const session_date = document.getElementById('fecha').value;
+const peso_kg = document.getElementById('peso').value;
+const nota = document.getElementById('nota').value;
+if (!peso_kg) { const m=document.getElementById('msg'); m.textContent='Introduce el peso.'; m.className='err'; return; }
+const payload = [{ type:'peso', client_id, session_date, peso_kg, comentarios: nota }];
+document.getElementById('payload').value = JSON.stringify(payload);
+document.getElementById('form').submit();
+const m=document.getElementById('msg'); m.textContent='Guardado. ¡Gracias!'; m.className='ok';
+});
+});
+</script>
+</body>
+</html>
