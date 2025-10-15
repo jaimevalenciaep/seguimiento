@@ -300,7 +300,7 @@
   <div class="container">
     <header class="brand">
       <div class="brand-left">
-        <img src="./logo-principal-encabezado-web.png" alt="Jaime Valencia — Entrenamiento personal, nutrición y programación online" class="brand-logo" loading="eager" />
+        <img src="./logo-invertido-fondo-oscuro.png" alt="Jaime Valencia — Entrenamiento personal, nutrición y programación online" class="brand-logo" loading="eager" />
         <div class="brand-text">
           <div class="brand-title">JAIME VALENCIA</div>
           <div class="brand-subtitle">Entrenamiento personal · Nutrición y programación online</div>
@@ -328,7 +328,7 @@
         </div>
         <div class="actions">
           <button class="btn-primary" id="add-btn">Añadir</button>
-          <button class="btn-secondary" id="export-btn" title="Descargar registros en CSV">Exportar CSV</button>
+          
           <button class="btn-danger" id="clear-btn" title="Borrar todos los registros">Borrar todo</button>
         </div>
         <details class="instructions">
@@ -645,7 +645,7 @@
 
   // Botones principales
   $('#add-btn').addEventListener('click', (e)=>{ e.preventDefault(); addEntry(); });
-  $('#export-btn').addEventListener('click', (e)=>{ e.preventDefault(); exportCSV(); });
+  
   $('#clear-btn').addEventListener('click', (e)=>{ e.preventDefault(); clearAll(); });
 
   // Inicialización
