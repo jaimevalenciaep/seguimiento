@@ -329,7 +329,7 @@
         <div class="actions">
           <button class="btn-primary" id="add-btn">Añadir</button>
           
-          <button class="btn-danger" id="clear-btn" title="Borrar todos los registros">Borrar todo</button>
+          
         </div>
         <details class="instructions">
           <summary>¿Cómo se guardan los datos?</summary>
@@ -646,7 +646,7 @@
   // Botones principales
   $('#add-btn').addEventListener('click', (e)=>{ e.preventDefault(); addEntry(); });
   
-  $('#clear-btn').addEventListener('click', (e)=>{ e.preventDefault(); clearAll(); });
+   clearAll(); });
 
   // Inicialización
   (async function init(){
