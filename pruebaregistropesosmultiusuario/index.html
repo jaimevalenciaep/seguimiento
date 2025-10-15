@@ -62,7 +62,7 @@
     .row{display:grid; grid-template-columns:1fr; gap:12px}
     @media (min-width:640px){ .row{ grid-template-columns: 1fr 1fr; } }
     @media (max-width:480px){
-      header.brand{display:grid; grid-template-columns: 1fr auto; gap:8px 12px; align-items:center; margin-bottom:8px}
+      header.brand{display:grid; grid-template-columns: 1fr auto; grid-auto-rows:auto; gap:8px 12px; align-items:center; margin-bottom:8px}
       .badge{justify-self:start}
       .page-title{font-size:clamp(1.3rem, 2.6vw, 1.8rem); margin:6px 0 14px 0; letter-spacing:.2px}
     }
