@@ -53,7 +53,7 @@
     .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow: 0 10px 30px rgb(0 0 0 / 25%);}
     .stack{display:grid; gap:12px}
     label{font-weight:600; color:#d1d9e0}
-    input[type="number"], input[type="text"], .fake-input{
+    input[type="number"], input[type="text"], input[type="date"], .fake-input{
       width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:#0c1219; color:var(--text);
       outline:none; transition: box-shadow .15s ease, border-color .15s ease;
     }
@@ -108,7 +108,7 @@
     .page-title{font-size:clamp(1.3rem, 2.6vw, 1.8rem); margin:4px 0 14px 0; letter-spacing:.2px}
 
     /* Controles y tablas afinados a la paleta */
-    input[type="number"], input[type="text"], .fake-input{background:#0b1526}
+    input[type="number"], input[type="text"], input[type="date"], .fake-input{background:#0b1526}
     input:focus{box-shadow:0 0 0 3px rgba(92,200,255,.35); border-color:var(--accent-2)}
     .btn-secondary{background:#101b2c}
     thead th{color:#c6d9f2}
@@ -318,7 +318,7 @@
         <div class="row">
           <div>
             <label for="fecha">Fecha</label>
-            <div class="fake-input" id="fecha" aria-live="polite"></div>
+            <input id="fecha" type="date" aria-label="Fecha" />
           </div>
           <div>
             <label for="peso">Peso corporal (kg)</label>
@@ -380,7 +380,7 @@
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-  const genId = () => (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('id_' + Math.random().toString(36).slice(2,10));
+  const genId = () => (typeof crypto!=='undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('id_'+Math.random().toString(36).slice(2,10));
 
   function toDDMMYYYY(d){
     const dt = (d instanceof Date) ? d : new Date(d);
@@ -388,6 +388,20 @@
     const mm = String(dt.getMonth()+1).padStart(2,'0');
     const yyyy = dt.getFullYear();
     return `${dd}/${mm}/${yyyy}`;
+  }
+  function toYMD(d){
+    const dt = (d instanceof Date) ? d : new Date(d);
+    const dd = String(dt.getDate()).padStart(2,'0');
+    const mm = String(dt.getMonth()+1).padStart(2,'0');
+    const yyyy = dt.getFullYear();
+    return yyyy+'-'+mm+'-'+dd;
+  }
+  function ymdToDDMMYYYY(s){
+    if(!s) return null;
+    const parts = String(s).split('-');
+    if(parts.length!==3) return null;
+    const yyyy=parts[0], mm=parts[1], dd=parts[2];
+    return dd+'/'+mm+'/'+yyyy;
   }
   function parseDDMMYYYY(str){
     const m = String(str||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
@@ -412,6 +426,9 @@
     clearTimeout(showToast._t);
     showToast._t = setTimeout(()=>{ el.style.display='none'; }, 3500);
   }
+  // Errores globales para evitar pantallas en blanco
+  window.addEventListener('error', (e)=>{ try{ showToast('Error: '+(e.error?.message||e.message), 'error'); }catch(_){} });
+  window.addEventListener('unhandledrejection', (e)=>{ try{ showToast('Error: '+(e.reason?.message||e.reason), 'error'); }catch(_){} });
 
   /* ======================= ADAPTADORES DE PERSISTENCIA ======================= */
   function createLocalAdapter(){
@@ -437,10 +454,13 @@
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload),
         signal: ctrl.signal,
+        mode: 'cors',
+        redirect: 'follow'
       });
       clearTimeout(t);
       if(!res.ok){ throw new Error('HTTP '+res.status); }
-      const json = await res.json();
+      const text = await res.text();
+      let json; try{ json = JSON.parse(text); }catch(_){ throw new Error('Respuesta no-JSON del backend'); }
       if(!json.ok){ throw new Error(json.error || 'Error desconocido'); }
       return json.data;
     }
@@ -545,9 +565,12 @@
       return;
     }
     const now = new Date();
+    const fechaInput = $('#fecha');
+    const fechaYMD = fechaInput && fechaInput.value ? fechaInput.value : toYMD(now);
+    const fechaStr = ymdToDDMMYYYY(fechaYMD) || toDDMMYYYY(now);
     const baseId = genId();
     const compositeId = CONFIG.CLIENTE_ID ? `${CONFIG.CLIENTE_ID}:${baseId}` : baseId;
-    const entry = { id: compositeId, fecha: toDDMMYYYY(now), peso: Number(peso.toFixed(1)), iso: now.toISOString() };
+    const entry = { id: compositeId, fecha: fechaStr, peso: Number(peso.toFixed(1)), iso: now.toISOString() };
     try{
       await state.adapter.add(entry);
       state.entries.push(entry);
@@ -642,13 +665,11 @@
 
   // Botones principales
   $('#add-btn').addEventListener('click', (e)=>{ e.preventDefault(); addEntry(); });
-  
-   clearAll(); });
 
   // Inicialización
   (async function init(){
     // Fecha UI
-    $('#fecha').textContent = toDDMMYYYY(new Date());
+    (function(){ const el=$('#fecha'); if(el){ const today=toYMD(new Date()); el.value=today; el.max=today; } })();
     // Cliente por URL ?cliente=... (opcional)
     const params = new URLSearchParams(location.search);
     const urlCliente = params.get('cliente') || params.get('client_id') || params.get('client') || params.get('id');
