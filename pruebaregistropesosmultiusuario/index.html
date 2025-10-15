@@ -62,7 +62,7 @@
     .row{display:grid; grid-template-columns:1fr; gap:12px}
     @media (min-width:640px){ .row{ grid-template-columns: 1fr 1fr; } }
     @media (max-width:480px){
-      header.brand{grid-template-columns: 1fr;}
+      header.brand{display:grid; grid-template-columns: 1fr auto; gap:8px 12px; align-items:center; margin-bottom:8px}
       .badge{justify-self:start}
       .page-title{font-size:clamp(1.3rem, 2.6vw, 1.8rem); margin:6px 0 14px 0; letter-spacing:.2px}
     }
@@ -103,8 +103,8 @@
     .brand-left{display:flex; gap:12px; align-items:center; min-width:0}
     .brand-logo{width:clamp(120px, 32vw, 220px); height:auto; filter: drop-shadow(0 0 18px rgba(23,178,255,.45)); border-radius:12px; flex-shrink:0}
     .brand-text{display:flex; flex-direction:column; min-width:0}
-    .brand-title{font-weight:800; letter-spacing:.6px; font-size:clamp(1rem, 2.2vw, 1.25rem); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .brand-subtitle{color:var(--muted); font-size:clamp(.85rem, 1.8vw, .95rem)}
+    .brand-title{font-weight:800; letter-spacing:.4px; font-size:clamp(1.05rem, 2.4vw, 1.4rem); line-height:1.15; white-space:normal; overflow:visible; text-overflow:clip}
+    .brand-subtitle{color:var(--muted); font-size:clamp(.9rem, 2.1vw, 1.05rem); line-height:1.25}
     .page-title{font-size:clamp(1.3rem, 2.6vw, 1.8rem); margin:4px 0 14px 0; letter-spacing:.2px}
 
     /* Controles y tablas afinados a la paleta */
@@ -122,6 +122,11 @@
   /* Marcas adicionales */
     .pill{border-color:var(--accent-2); color:#cfe9ff; background:rgba(23,178,255,.08)}
     body::after{content:""; position:fixed; inset:0; pointer-events:none; background: url('./logo-invertido-fondo-oscuro.png') no-repeat right -80px top -60px; background-size: 360px auto; opacity:.05}
+  .brand-aside{display:grid; gap:6px; justify-items:end}
+    @media (max-width:560px){
+      header.brand{grid-template-columns:1fr}
+      .brand-aside{justify-items:start}
+    }
   </style>
 </head>
 <body>
@@ -299,15 +304,14 @@
 
   <div class="container">
     <header class="brand">
-      <div class="brand-left">
-        <img src="./logo-invertido-fondo-oscuro.png" alt="Jaime Valencia — Entrenamiento personal, nutrición y programación online" class="brand-logo" loading="eager" />
-        <div class="brand-text">
-          <div class="brand-title">JAIME VALENCIA</div>
-          <div class="brand-subtitle">Entrenamiento personal · Nutrición y programación online</div>
-        </div>
+      <div class="brand-text">
+        <div class="brand-title">JAIME VALENCIA</div>
+        <div class="brand-subtitle">Entrenamiento personal · Nutrición y programación online</div>
       </div>
-      <div class="badge" id="status-badge" aria-live="polite">Comprobando almacenamiento…</div>
-      <div class="badge pill" id="cliente-badge" aria-live="polite" style="display:none"></div>
+      <div class="brand-aside">
+        <div class="badge" id="status-badge" aria-live="polite">Inicializando…</div>
+        <div class="badge" id="cliente-badge" aria-live="polite" style="display:none"></div>
+      </div>
     </header>
 
     <h1 class="page-title">Registro diario de peso</h1>
